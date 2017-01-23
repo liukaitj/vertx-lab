@@ -1,5 +1,7 @@
 package lk.lab.vertx.boot.verticle;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,7 @@ public class VerticleDeployer {
 	@Autowired
 	private ServiceVerticle serviceVerticle;
 	
+	@PostConstruct
 	public void deployVerticles() {
 		Vertx vertx = Vertx.vertx();
 		vertx.deployVerticle(restVerticle);

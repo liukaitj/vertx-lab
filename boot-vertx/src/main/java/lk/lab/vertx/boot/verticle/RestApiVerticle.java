@@ -21,20 +21,28 @@ public class RestApiVerticle extends AbstractVerticle {
 	
 	@Override
 	public void start() {
+		logger.info("[" + Thread.currentThread().getName() + "] "
+				+ getClass() + "#start() called.");
+		
 		Router router = Router.router(vertx);
 		router.route(HttpMethod.GET, "/api/hello").handler(routingContext -> {
+			logger.info("[" + Thread.currentThread().getName() + "] "
+					+ getClass() + "#routeHandler called.");
+			
 			HttpServerResponse response = routingContext.response();
 			
 			vertx.eventBus().send("say.hello", "aaa", result -> {
 				if (result.succeeded()) {
-					response.putHeader("content-type", "application/json")
+					response.setChunked(true)
+							.putHeader("content-type", "application/json")
 							.setStatusCode(200)
 							.write((String) result.result().body())
 							.end();
 				} else {
-					response.putHeader("content-type", "application/json")
+					response.setChunked(true)
+							.putHeader("content-type", "application/json")
 							.setStatusCode(500)
-							.write("{'error':'" + result.result().body() + "'}")
+							.write((String) result.result().body())
 							.end();
 				}
 			});
