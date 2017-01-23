@@ -48,6 +48,15 @@ public class RestApiVerticle extends AbstractVerticle {
 			});
 		});
 		
+		router.route(HttpMethod.GET, "/api/hello2").handler(routingContext -> {
+			HttpServerResponse response = routingContext.response();
+			response.setChunked(true)
+					.putHeader("content-type", "application/json")
+					.setStatusCode(200)
+					.write("{\"hello\":\"ccc\"}")
+					.end();
+		});
+		
 		HttpServer server = vertx.createHttpServer();
 		server.requestHandler(router::accept).listen(httpPort);
 	}
