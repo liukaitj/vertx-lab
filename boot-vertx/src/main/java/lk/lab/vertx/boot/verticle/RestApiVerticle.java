@@ -1,7 +1,10 @@
 package lk.lab.vertx.boot.verticle;
 
+import java.util.Random;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +13,7 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
+import lk.lab.vertx.boot.service.disruptor.DisruptorProducer;
 
 @Component
 public class RestApiVerticle extends AbstractVerticle {
@@ -18,6 +22,9 @@ public class RestApiVerticle extends AbstractVerticle {
 	
 	@Value("${lab.vertx.http-port:8080}")
 	private int httpPort;
+	
+	@Autowired
+	private DisruptorProducer producer;
 	
 	@Override
 	public void start() {
@@ -54,6 +61,21 @@ public class RestApiVerticle extends AbstractVerticle {
 					.putHeader("content-type", "application/json")
 					.setStatusCode(200)
 					.write("{\"hello\":\"ccc\"}")
+					.end();
+		});
+		
+		router.route(HttpMethod.GET, "/api/disruptor/publish").handler(routingContext -> {
+			Random ran = new Random();
+			int value = ran.nextInt(10);
+			logger.info("[" + Thread.currentThread().getName() + "] "
+					+ "#disruptor random value:" + value);
+			producer.publishData(value);
+			
+			HttpServerResponse response = routingContext.response();
+			response.setChunked(true)
+					.putHeader("content-type", "application/json")
+					.setStatusCode(200)
+					.write("{\"hello\":\"disruptor/publish\"}")
 					.end();
 		});
 		
