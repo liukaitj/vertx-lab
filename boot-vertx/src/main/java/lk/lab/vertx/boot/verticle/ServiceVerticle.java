@@ -39,11 +39,12 @@ public class ServiceVerticle extends AbstractVerticle {
 							future.fail(e);
 						}
 					},
+					false,  // 将线程池的执行顺序设定为无序，因此可以并行地执行多个任务
 					result -> {
 						if (result.succeeded()) {
 							msg.reply(result.result());
 						} else {
-							msg.reply("{\"error\":\"" + result.cause().getMessage() + "\"}");
+							msg.fail(500, result.cause().getMessage());
 						}
 					}
 				);

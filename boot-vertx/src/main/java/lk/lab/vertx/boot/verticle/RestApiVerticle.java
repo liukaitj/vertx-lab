@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
@@ -38,7 +39,10 @@ public class RestApiVerticle extends AbstractVerticle {
 			
 			HttpServerResponse response = routingContext.response();
 			
-			vertx.eventBus().send("say.hello", "aaa", result -> {
+			// eventbus send的超时时间默认为30秒，更改此值以支持超长的线程等待
+			DeliveryOptions opts = new DeliveryOptions().setSendTimeout(1800000);
+			
+			vertx.eventBus().send("say.hello", "aaa", opts, result -> {
 				if (result.succeeded()) {
 					response.setChunked(true)
 							.putHeader("content-type", "application/json")
@@ -49,7 +53,7 @@ public class RestApiVerticle extends AbstractVerticle {
 					response.setChunked(true)
 							.putHeader("content-type", "application/json")
 							.setStatusCode(500)
-							.write((String) result.result().body())
+							.write(result.cause().getMessage())
 							.end();
 				}
 			});

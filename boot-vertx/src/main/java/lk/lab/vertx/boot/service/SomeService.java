@@ -13,7 +13,7 @@ public class SomeService {
 		logger.info("[" + Thread.currentThread().getName() + "] "
 				+ getClass() + "#echo(" + name + ") called.");
 		
-//		Thread.sleep(3000);
+		Thread.sleep(3000);
 //		throw new RuntimeException("intentionallly throwed exception.");
 		return "{\"hello\":\"" + name + "\"}";
 	}
